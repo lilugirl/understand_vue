@@ -1,11 +1,48 @@
+class Dep {
+  constructor() {
+    this.subs = []
+  }
+
+  addSub(sub) {
+    this.subs.push(sub)
+  }
+
+  removeSub(sub) {
+    remove(this.subs, sub)
+  }
+
+  depend() {
+    if (window.target) {
+      this.addSub(window.target)
+    }
+  }
+
+  notify() {
+    const subs = this.subs.slice()
+    for (let i = 0, j = subs.length; i < j; i++) {
+      subs[i].update()
+    }
+  }
+}
+
+function remove(arr, item) {
+  if (arr.length) {
+    const index = arr.indexOf(item)
+    if (index > -1) {
+      return arr.splice(index, 1)
+    }
+  }
+
+}
+
 function defineReactive(data, key, val) {
-  let dep = [] //新增
+  let dep = new Dep() //修改
   Object.defineProperty(data, key, {
     enumerable: true,
     configurable: true,
     get: function () {
       console.log('get val', val);
-      dep.push(window.target) // 新增
+      dep.depend()
       console.log('dep', dep);
       return val;
     },
@@ -14,13 +51,9 @@ function defineReactive(data, key, val) {
       if (val === newVal) {
         return
       }
-      // 新增
-      console.log('dep', dep);
-      for (let i = 0; i < dep.length; i++) {
-        // dep[i](newVal, val)
 
-      }
       val = newVal
+      dep.notify()
     }
   })
 }
